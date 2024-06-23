@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Dylan Hardison <dylan@hardison.net>"]
 description = "A Serde implementation for Perl data structures"
 keywords = ["serde", "perl", "serialization"]
-license = "Artistic-2.0"
+license = "MIT"
 repository = "https://github.com/dylanwh/serde_perl"
 
 edition = "2021"
