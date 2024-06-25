@@ -1,8 +1,8 @@
-use std::borrow::Cow;
 use serde::{
     de::{self, IntoDeserializer, Visitor},
     forward_to_deserialize_any, Deserialize,
 };
+use std::borrow::Cow;
 
 use crate::error::{Error, Result};
 use crate::parser::{self, Array, Hash, Reference, Scalar};

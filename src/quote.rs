@@ -1,5 +1,3 @@
-
-
 pub fn single_quote(output: &mut String, value: &str) {
     // grow the buffer to hold the string and some extra characters
     output.reserve(value.len() + 2);
@@ -27,7 +25,6 @@ pub fn bare_quote(output: &mut String, value: &str) {
     }
 }
 
-
 pub fn int_quote<I>(output: &mut String, value: I)
 where
     I: itoa::Integer,
@@ -49,9 +46,7 @@ pub fn is_bareword(value: &str) -> bool {
         return false;
     }
 
-    value.chars().all(|c| {
-        c.is_ascii_alphanumeric() || c == '_'
-    })
+    value.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
 }
 
 #[cfg(test)]

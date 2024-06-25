@@ -23,8 +23,7 @@ use std::collections::HashMap;
 const PUNCTUATION: &str = r##"!"#$%&'(*+,-/:;<=?@[\^`{|~"##;
 
 pub fn parse(input: &str) -> crate::error::Result<Scalar> {
-    let (_, scalar) =
-        parse_scalar(input).map_err(|e| crate::error::Error::Nom(format!("{e}")))?;
+    let (_, scalar) = parse_scalar(input).map_err(|e| crate::error::Error::Nom(format!("{e}")))?;
     Ok(scalar)
 }
 
@@ -196,17 +195,17 @@ fn parse_number(input: &str) -> IResult<&str, Scalar> {
 fn parse_single_quoted_string(input: &str) -> IResult<&str, Scalar> {
     let (input, s) = delimited(
         char('\''),
-        escaped(none_of("\\'"), '\\', one_of("'\\")),
+        opt(escaped(none_of("\\'"), '\\', one_of("'\\"))),
         char('\''),
     )(input)?;
 
-    Ok((input, Scalar::String(s.to_string())))
+    Ok((input, Scalar::String(s.unwrap_or_default().to_string())))
 }
 
 fn parse_double_quoted_string(input: &str) -> IResult<&str, Scalar> {
     let (input, s) = delimited(
         char('"'),
-        escaped_transform(
+        opt(escaped_transform(
             none_of("\\\""),
             '\\',
             alt((
@@ -222,11 +221,11 @@ fn parse_double_quoted_string(input: &str) -> IResult<&str, Scalar> {
                 value("\x1B", tag("e")),
                 value("\x1F", tag("z")),
             )),
-        ),
+        )),
         char('"'),
     )(input)?;
 
-    Ok((input, Scalar::String(s.to_string())))
+    Ok((input, Scalar::String(s.unwrap_or_default().to_string())))
 }
 
 /// this parses:
@@ -245,10 +244,14 @@ fn parse_q_string(input: &str) -> IResult<&str, Scalar> {
     let (input, start_delim) = one_of(PUNCTUATION)(input)?;
     let end_delim = paired_quote_delimiter(start_delim);
     let esc = format!("{}\\", end_delim);
-    let (input, s) = escaped(many0(none_of(esc.as_str())), '\\', one_of(esc.as_str()))(input)?;
+    let (input, s) = opt(escaped(
+        many0(none_of(esc.as_str())),
+        '\\',
+        one_of(esc.as_str()),
+    ))(input)?;
     let (input, _) = char(end_delim)(input)?;
 
-    Ok((input, Scalar::String(s.to_string())))
+    Ok((input, Scalar::String(s.unwrap_or_default().to_string())))
 }
 
 fn paired_quote_delimiter(c: char) -> char {
@@ -407,6 +410,24 @@ mod tests {
             .into_iter()
             .collect(),
         )));
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_empty_string() {
+        let input = "''";
+        let expected = Scalar::String("".to_string());
+        let actual = parse_single_quoted_string(input).unwrap().1;
+        assert_eq!(expected, actual);
+
+        let input = "q{}";
+        let expected = Scalar::String("".to_string());
+        let actual = parse_q_string(input).unwrap().1;
+        assert_eq!(expected, actual);
+
+        let input = r#""""#;
+        let expected = Scalar::String("".to_string());
+        let actual = parse_double_quoted_string(input).unwrap().1;
         assert_eq!(expected, actual);
     }
 }

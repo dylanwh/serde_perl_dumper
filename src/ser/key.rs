@@ -1,6 +1,9 @@
 use serde::ser::{self, Serialize, Serializer};
 
-use crate::{error::{Error, Result}, quote::{bare_quote, float_quote, int_quote}};
+use crate::{
+    error::{Error, Result},
+    quote::{bare_quote, float_quote, int_quote},
+};
 
 // A Perl serializer needs to validate that map keys are strings.
 // This can be done by using a different Serializer to serialize the key
@@ -136,11 +139,7 @@ impl<'a> Serializer for &'a mut KeySerializer {
         Ok(())
     }
 
-    fn serialize_newtype_struct<T>(
-        self,
-        name: &'static str,
-        value: &T,
-    ) -> Result<Self::Ok>
+    fn serialize_newtype_struct<T>(self, name: &'static str, value: &T) -> Result<Self::Ok>
     where
         T: ?Sized + Serialize,
     {
@@ -164,18 +163,13 @@ impl<'a> Serializer for &'a mut KeySerializer {
 
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
         Err(serde::ser::Error::custom("key must be a string"))
-  
     }
 
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
         Err(serde::ser::Error::custom("key must be a string"))
     }
 
-    fn serialize_struct(
-        self,
-        _name: &'static str,
-        _len: usize,
-    ) -> Result<Self::SerializeStruct> {
+    fn serialize_struct(self, _name: &'static str, _len: usize) -> Result<Self::SerializeStruct> {
         Err(serde::ser::Error::custom("key must be a string"))
     }
 
@@ -210,7 +204,6 @@ impl<'a> Serializer for &'a mut KeySerializer {
     ) -> Result<Self::SerializeTupleVariant> {
         Err(serde::ser::Error::custom("key must be a string"))
     }
-    
 }
 
 // The following 7 impls deal with the serialization of compound types like

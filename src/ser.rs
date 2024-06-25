@@ -3,7 +3,10 @@ mod key;
 use key::KeySerializer;
 use serde::{ser, Serialize};
 
-use crate::{error::{Error, Result}, quote::{float_quote, int_quote, single_quote}};
+use crate::{
+    error::{Error, Result},
+    quote::{float_quote, int_quote, single_quote},
+};
 
 pub struct Serializer {
     // This string starts empty and JSON is appended as values are serialized.
@@ -19,7 +22,9 @@ pub fn to_string<T>(value: &T) -> Result<String>
 where
     T: Serialize,
 {
-    let mut serializer = Serializer { output: String::new() };
+    let mut serializer = Serializer {
+        output: String::new(),
+    };
     value.serialize(&mut serializer)?;
     Ok(serializer.output)
 }
@@ -174,11 +179,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
 
     // As is done here, serializers are encouraged to treat newtype structs as
     // insignificant wrappers around the data they contain.
-    fn serialize_newtype_struct<T>(
-        self,
-        _name: &'static str,
-        value: &T,
-    ) -> Result<()>
+    fn serialize_newtype_struct<T>(self, _name: &'static str, value: &T) -> Result<()>
     where
         T: ?Sized + Serialize,
     {
@@ -270,11 +271,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     // omit the field names when serializing structs because the corresponding
     // Deserialize implementation is required to know what the keys are without
     // looking at the serialized data.
-    fn serialize_struct(
-        self,
-        _name: &'static str,
-        len: usize,
-    ) -> Result<Self::SerializeStruct> {
+    fn serialize_struct(self, _name: &'static str, len: usize) -> Result<Self::SerializeStruct> {
         self.serialize_map(Some(len))
     }
 

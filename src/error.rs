@@ -12,7 +12,6 @@ pub enum Error {
 
     #[error("parse error: {0}")]
     Nom(String),
-
     // Zero or more variants that can be created directly by the Serializer and
     // Deserializer without going through `ser::Error` and `de::Error`. These
     // are specific to the format, in this case JSON.
